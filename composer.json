@@ -28,6 +28,5 @@
         "psr-4": {
             "MrKody\\JsonDb\\": "src"
         }
-    },
-    "minimum-stability": "dev"
+    }
 }
