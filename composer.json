@@ -1,0 +1,33 @@
+{
+    "name": "mrkody/php-jsondb",
+    "description": "Simple JSON-file-database PHP library",
+    "keywords": [
+        "mrkody",
+        "jsondb",
+        "json",
+        "php"
+    ],
+    "homepage": "https://github.com/mrkody/php-jsondb",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "donjajo",
+            "email": "me@donjajo.com"
+        },
+        {
+            "name": "mrkody",
+            "email": "kody1994@mail.ru"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "MrKody\\JsonDb\\": "src"
+        }
+    },
+    "minimum-stability": "dev"
+}
