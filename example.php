@@ -1,6 +1,6 @@
 <?php 
 
-include_once('JSONDB.Class.php');
+include_once('src/JSONDB.Class.php');
 
 $json_db = new JSONDB();
 
