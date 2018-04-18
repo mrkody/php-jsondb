@@ -2,11 +2,11 @@
 A PHP Class that reads JSON file as a database. Use for sample DBs.
 
 ### Usage
-Include the file `<?php include( 'JSONDB.Class.php' );?>`
+Include the file `<?php include( 'vendor/autoload.php' );?>`
 #### Initialize
 ```php
 	<?php 
-	$json_db = new JSONDB();
+	$json_db = new \joker2620\JsonDb\JsonDb();
 ```
 
 #### Inserting
@@ -74,13 +74,13 @@ This WHERE works as AND Operator at the moment or OR
 ```
 
 ##### Order By:
-Thanks to [Tarun Shanker](http://in.linkedin.com/in/tarunshankerpandey) for this feature. By passing the `order_by()` method, the result is sorted with 2 arguments of the column name and sort method - `JSONDB::ASC` and `JSONDB::DESC`
+Thanks to [Tarun Shanker](http://in.linkedin.com/in/tarunshankerpandey) for this feature. By passing the `orderBy()` method, the result is sorted with 2 arguments of the column name and sort method - `JSONDB::ASC` and `JSONDB::DESC`
 ```php
 	<?php 
 	$users = $json_db->select( 'name, state'  )
 		->from( 'users.json' )
 		->where( [ 'name' => 'Thomas' ] )
-		->order_by( 'age', JSONDB::ASC )
+		->orderBy( 'age', JsonDb::ASC_SORT )
 		->get();
 	print_r( $users );
 ```
@@ -112,18 +112,18 @@ You can also update same JSON file with these methods
 You can export the JSON back to SQL file by using this method and providing an output
 ```php
         <?php 
-        $json_db->to_mysql( 'users.json', 'users.sql' );
+        $json_db->toMysql( 'users.json', 'users.sql' );
 ```
 Disable CREATE TABLE
 ```php
         <?php 
-        $json_db->to_mysql( 'users.json', 'users.sql', false );
+        $json_db->toMysql( 'users.json', 'users.sql', false );
 ```
 
 #### Exporting to XML
 [Tarun Shanker](http://in.linkedin.com/in/tarunshankerpandey) also provided a feature to export data to an XML file 
 ```php
 	<?php 
-	if( $json_db->to_xml( 'users.json', 'users.xml' ) ) {
+	if( $json_db->toXml( 'users.json', 'users.xml' ) ) {
 		echo 'Saved!';
 	}
