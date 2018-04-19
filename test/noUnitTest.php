@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 /**
  * File: noUnitTest.php;
  * Author: Joker2620;
@@ -13,7 +14,6 @@ $json_db = new JsonDb();
 $json_db->from('users.json');
 
 $json_db->insert(
-    'users.json',
     [
         'name' => 'Вася',
         'state' => 'Россия',
@@ -21,10 +21,10 @@ $json_db->insert(
     ]
 );
 
-$rows = $json_db->orderBy('name', JsonDb::ASC_SORT)->get();
+$rows_data = $json_db->orderBy('name', JsonDb::ASC_SORT)->get();
 
-foreach ($rows as $row) {
-    print_r($row);
+foreach ($rows_data as $row_dara) {
+    print_r($row_dara);
     echo "<br>";
 }
 $users = $json_db->select('*')
@@ -43,14 +43,12 @@ $users = $json_db->select('name, state')
     ->get();
 print_r($users);
 
-// Defaults to Thomas OR Nigeria
 $users = $json_db->select('name, state')
     ->from('users.json')
     ->where(['name' => 'Вася', 'state' => 'Россия'])
     ->get();
 print_r($users);
 
-// Now is THOMAS AND Nigeria
 $users = $json_db->select('name, state')
     ->from('users.json')
     ->where(['name' => 'Вася', 'state' => 'Россия'], 'AND')
@@ -60,4 +58,4 @@ print_r($users);
 $users = $json_db->select('name, state')
     ->from('users.json')
     ->where(['name' => 'Вася'])
-    ->orderBy('age', JsonDb::ASC_SORT);
+    ->orderBy('age');

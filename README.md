@@ -16,9 +16,9 @@ Insert into your new JSON file. Using *users.json* as example here
 
 ```php
 	<?php
-		$json_db->insert( 'users.json', 
+		$json_db->insert(
 		[ 
-			'name' => 'Thomas', 
+		    'name' => 'Thomas', 
 			'state' => 'Nigeria', 
 			'age' => 22 
 		]);
@@ -80,7 +80,7 @@ Thanks to [Tarun Shanker](http://in.linkedin.com/in/tarunshankerpandey) for this
 	$users = $json_db->select( 'name, state'  )
 		->from( 'users.json' )
 		->where( [ 'name' => 'Thomas' ] )
-		->orderBy( 'age', JsonDb::ASC_SORT )
+		->orderBy( 'age')
 		->get();
 	print_r( $users );
 ```

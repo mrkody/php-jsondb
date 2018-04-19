@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 namespace joker2620\JsonDb;
 
 /**
@@ -27,19 +28,11 @@ class JsonDb
      *
      * @return $this
      */
-    public function select($args = '*')
+    public function select(string $args = '*')
     {
-        /**
-         * Explodes the selected columns into array
-         *
-         */
-
-        // Explode to array
-        $this->select = explode(',', $args);
-        // Remove whitespaces
-        $this->select = array_map('trim', $this->select);
-        // Remove empty values
-        $this->select = array_filter($this->select);
+                $this->select = explode(',', $args);
+                $this->select = array_map('trim', $this->select);
+                $this->select = array_filter($this->select);
 
         return $this;
     }
@@ -71,16 +64,13 @@ class JsonDb
     /**
      * insert()
      *
-     * @param       $file
      * @param array $values
      *
      * @return array
-     * @throws \Exception
+     * @throws DataBaseException
      */
-    public function insert($file, array $values)
+    public function insert(array $values)
     {
-        $this->from($file);
-
         if (!empty($this->content[0])) {
             $nulls = array_diff_key(( array )$this->content[0], $values);
             if ($nulls) {
@@ -94,7 +84,7 @@ class JsonDb
         }
 
         if (!empty($this->content) && array_diff_key($values, (array )$this->content[0])) {
-            throw new \Exception('Columns must match as of the first row');
+            throw new DataBaseException('Columns must match as of the first row');
         } else {
             $this->content[]   = ( object )$values;
             $this->lastIndexes = [(count($this->content) - 1)];
@@ -102,80 +92,7 @@ class JsonDb
         }
         return $this->lastIndexes;
     }
-
-    /**
-     * from()
-     *
-     * @param $file
-     *
-     * @return $this
-     */
-    public function from($file)
-    {
-        $this->file = $file;
-
-        // Reset where
-        $this->where([]);
-
-        // Reset order by
-        $this->orderBy = [];
-
-        if ($this->checkFile()) {
-            $this->content = ( array )json_decode(file_get_contents($this->file));
-        }
-        return $this;
-    }
-
-    /**
-     * where()
-     *
-     * @param array  $columns
-     * @param string $merge
-     *
-     * @return $this
-     */
-    public function where(array $columns, $merge = 'OR')
-    {
-        $this->where = $columns;
-        $this->merge = $merge;
-        return $this;
-    }
-
-    /**
-     * checkFile()
-     *
-     * @return bool
-     * @throws \Exception
-     */
-    private function checkFile()
-    {
-        /**
-         * Checks and validates if JSON file exists
-         *
-         * @return bool
-         */
-
-        // Checks if JSON file exists, if not create
-        if (!file_exists($this->file)) {
-            $this->commit();
-        }
-
-        // Read content of JSON file
-        $content = file_get_contents($this->file);
-        $content = json_decode($content);
-
-        // Check if its arrays of jSON
-        if (!is_array($content) && is_object($content)) {
-            throw new \Exception('An array of json is required: Json data enclosed with []');
-        } // An invalid jSON file
-        elseif (!is_array($content) && !is_object($content)) {
-            throw new \Exception('json is invalid');
-        } else {
-            return true;
-        }
-    }
-
-    public function commit()
+    public function commit(): void
     {
         $file_resource = fopen($this->file, 'w+');
         fwrite($file_resource, (!$this->content ? '[]' : json_encode($this->content)));
@@ -221,39 +138,30 @@ class JsonDb
      */
     private function whereResult()
     {
-        /*
-            Validates the where statement values
-        */
+
 
         if ($this->merge == 'AND') {
             return $this->whereAndResult();
         } else {
-            $r = [];
+            $return = [];
 
-            // Loop through the existing values. Ge the index and row
-            foreach ($this->content as $index => $row) {
+                        foreach ($this->content as $index => $row_data) {
 
-                // Make sure its array data type
-                $row = ( array )$row;
+                                $row_data = ( array )$row_data;
 
-                // Loop again through each row,  get columns and values
-                foreach ($row as $column => $value) {
-                    // If each of the column is provided in the where statement
-                    if (in_array($column, array_keys($this->where))) {
-                        // To be sure the where column value and existing row column value matches
-                        if ($this->where[$column] == $row[$column]) {
-                            // Append all to be modified row into a array variable
-                            $r[] = $row;
+                                foreach ($row_data as $column => $value) {
+                                        if (in_array($column, array_keys($this->where))) {
+                                                if ($this->where[$column] == $row_data[$column]) {
+                                                        $return[] = $row_data;
 
-                            // Append also each row array key
-                            $this->lastIndexes[] = $index;
+                                                        $this->lastIndexes[] = $index;
                         } else {
                             continue;
                         }
                     }
                 }
             }
-            return $r;
+            return $return;
         }
     }
 
@@ -264,40 +172,39 @@ class JsonDb
      */
     private function whereAndResult()
     {
-        /*
-            Validates the where statement values
-        */
-        $r = [];
 
-        // Loop through the db rows. Ge the index and row
-        foreach ($this->content as $index => $row) {
+        $return = [];
 
-            // Make sure its array data type
-            $row = ( array )$row;
+                foreach ($this->content as $index => $row_data) {
+
+                        $row_data = ( array )$row_data;
 
 
-            //check if the row = where['col'=>'val', 'col2'=>'val2']
-            if (!array_diff($this->where, $row)) {
-                $r[] = $row;
-                // Append also each row array key
-                $this->lastIndexes[] = $index;
+                        if (!array_diff($this->where, $row_data)) {
+                $return[] = $row_data;
+                                $this->lastIndexes[] = $index;
             } else {
                 continue;
             }
         }
-        return $r;
+        return $return;
     }
 
+    /**
+     * privateUpdate()
+     *
+     * @throws DataBaseException
+     */
     private function privateUpdate()
     {
         if (!empty($this->lastIndexes) && !empty($this->where)) {
-            foreach ($this->content as $i => $v) {
-                if (in_array($i, $this->lastIndexes)) {
-                    $content = ( array )$this->content[$i];
+            foreach ($this->content as $index => $value) {
+                if (in_array($index, $this->lastIndexes)) {
+                    $content = ( array )$this->content[$index];
                     if (!array_diff_key($this->update, $content)) {
-                        $this->content[$i] = ( object )array_merge($content, $this->update);
+                        $this->content[$index] = ( object )array_merge($content, $this->update);
                     } else {
-                        throw new \Exception('Update method has an off key');
+                        throw new DataBaseException('Update method has an off key');
                     }
                 } else {
                     continue;
@@ -306,80 +213,141 @@ class JsonDb
         } elseif (!empty($this->where) && empty($this->lastIndexes)) {
             null;
         } else {
-            foreach ($this->content as $i => $v) {
-                $content = ( array )$this->content[$i];
+            foreach ($this->content as $index => $value) {
+                $content = ( array )$this->content[$index];
                 if (!array_diff_key($this->update, $content)) {
-                    $this->content[$i] = ( object )array_merge($content, $this->update);
+                    $this->content[$index] = ( object )array_merge($content, $this->update);
                 } else {
-                    throw new \Exception('Update method has an off key ');
+                    throw new DataBaseException('Update method has an off key ');
                 }
             }
         }
     }
 
+
     /**
      * toXml()
      *
-     * @param $from
-     * @param $to
+     * @param string $from
+     * @param string $to
      *
      * @return bool
      */
-    public function toXml($from, $to)
+    public function toXml(string $from, string $to)
     {
         $this->from($from);
         if ($this->content) {
             $element = pathinfo($from, PATHINFO_FILENAME);
-            $xml
+            $xml_data
                      = '
 			<?xml version="1.0"?>
 				<' . $element . '>
 ';
 
             foreach ($this->content as $index => $value) {
-                $xml
+                $xml_data
                     .= '
 				<DATA>';
-                foreach ($value as $col => $val) {
-                    $xml .= sprintf(
+                foreach ($value as $colum => $values) {
+                    $xml_data .= sprintf(
                         '
-					<%s>%s</%s>', $col, $val, $col
+					<%s>%s</%s>', $colum, $values, $colum
                     );
                 }
-                $xml
+                $xml_data
                     .= '
 				</DATA>
 				';
             }
-            $xml .= '</' . $element . '>';
+            $xml_data .= '</' . $element . '>';
 
-            $xml = trim($xml);
-            file_put_contents($to, $xml);
+            $xml_data = trim($xml_data);
+            file_put_contents($to, $xml_data);
             return true;
         }
         return false;
     }
 
     /**
+     * from()
+     *
+     * @param string $file
+     *
+     * @return $this
+     */
+    public function from(string $file)
+    {
+        $this->file = $file;
+
+                $this->where([]);
+
+                $this->orderBy = [];
+
+        if ($this->checkFile()) {
+            $this->content = ( array )json_decode(file_get_contents($this->file));
+        }
+        return $this;
+    }
+
+    /**
+     * where()
+     *
+     * @param array  $columns
+     * @param string $merge
+     *
+     * @return $this
+     */
+    public function where(array $columns, $merge = 'OR')
+    {
+        $this->where = $columns;
+        $this->merge = $merge;
+        return $this;
+    }
+
+    /**
+     * checkFile()
+     *
+     * @return bool
+     * @throws DataBaseException
+     */
+    private function checkFile()
+    {
+                if (!file_exists($this->file)) {
+            $this->commit();
+        }
+
+                $content = file_get_contents($this->file);
+        $content = json_decode($content);
+
+                if (!is_array($content) && is_object($content)) {
+            throw new DataBaseException('An array of json is required: Json data enclosed with []');
+        }         elseif (!is_array($content) && !is_object($content)) {
+            throw new DataBaseException('json is invalid');
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * toMysql()
      *
-     * @param      $from
-     * @param      $to
-     * @param bool $create_table
+     * @param string $from
+     * @param string $to
+     * @param bool   $create_table
      *
      * @return bool
      */
-    public function toMysql($from, $to, $create_table = true)
+    public function toMysql(string $from, string $to, bool $create_table = true)
     {
         $this->from($from);
         if ($this->content) {
             $table = pathinfo($to, PATHINFO_FILENAME);
 
-            $sql
+            $sql_data
                 = "-- PHP-JSONDB JSON to MySQL Dump
 --\r\n\r\n";
             if ($create_table) {
-                $sql
+                $sql_data
                     .= "
 -- Table Structure for `" . $table . "`
 --
@@ -389,32 +357,32 @@ CREATE TABLE `" . $table . "`
 					";
                 $first_row = ( array )$this->content[0];
                 foreach (array_keys($first_row) as $column) {
-                    $s = '`' . $column . '` ' . $this->toMysqlType(gettype($first_row[$column]));
-                    $s .= (next($first_row) ? ',' : '');
-                    $sql .= $s;
+                    $string = '`' . $column . '` ' . $this->toMysqlType(gettype($first_row[$column]));
+                    $string .= (next($first_row) ? ',' : '');
+                    $sql_data .= $string;
                 }
-                $sql
+                $sql_data
                     .= "
 	);\r\n";
             }
 
             foreach ($this->content as $values) {
                 $values = ( array )$values;
-                $v      = array_map(
-                    function ($vv) {
-                        $vv = (is_array($vv) || is_object($vv) ? serialize($vv) : $vv);
-                        return "'" . addslashes($vv) . "'";
+                $value  = array_map(
+                    function ($value2) {
+                        $value2 = (is_array($value2) || is_object($value2) ? serialize($value2) : $value2);
+                        return "'" . addslashes($value2) . "'";
                     }, array_values($values)
                 );
 
-                $c = array_map(
-                    function ($vv) {
-                        return "`" . $vv . "`";
+                $content = array_map(
+                    function ($value2) {
+                        return "`" . $value2 . "`";
                     }, array_keys($values)
                 );
-                $sql .= sprintf("INSERT INTO `%s` ( %s ) VALUES ( %s );\n", $table, implode(', ', $c), implode(', ', $v));
+                $sql_data .= sprintf("INSERT INTO `%s` ( %s ) VALUES ( %s );\n", $table, implode(', ', $content), implode(', ', $value));
             }
-            file_put_contents($to, $sql);
+            file_put_contents($to, $sql_data);
             return true;
         } else {
             return false;
@@ -424,11 +392,11 @@ CREATE TABLE `" . $table . "`
     /**
      * toMysqlType()
      *
-     * @param $type
+     * @param string $type
      *
      * @return string
      */
-    private function toMysqlType($type)
+    private function toMysqlType(string $type)
     {
         if ($type == 'bool') {
             $return = 'BOOLEAN';
@@ -445,19 +413,19 @@ CREATE TABLE `" . $table . "`
     /**
      * orderBy()
      *
-     * @param     $column
-     * @param int $order
+     * @param string $column
+     * @param int    $order
      *
      * @return $this
      */
-    public function orderBy($column, $order = self::ASC_SORT)
+    public function orderBy(string $column, int $order = self::ASC_SORT)
     {
         $this->orderBy = [$column, $order];
         return $this;
     }
 
     /**
-     * get()
+     * getResult()
      *
      * @return array
      */
@@ -470,22 +438,21 @@ CREATE TABLE `" . $table . "`
         }
 
         if ($this->select && !in_array('*', $this->select)) {
-            $r = [];
-            foreach ($content as $id => $row) {
-                $row = ( array )$row;
-                foreach ($row as $key => $val) {
-                    if (in_array($key, $this->select)) {
-                        $r[$id][$key] = $val;
+            $return = [];
+            foreach ($content as $index => $value) {
+                $value = ( array )$value;
+                foreach ($value as $index2 => $value2) {
+                    if (in_array($index2, $this->select)) {
+                        $return[$index][$index2] = $value2;
                     } else {
                         continue;
                     }
                 }
             }
-            $content = $r;
+            $content = $return;
         }
 
-        // Finally, lets do sorting :)
-        $content = $this->processOrderBy($content);
+                $content = $this->processOrderBy($content);
 
         return $content;
     }
@@ -493,37 +460,26 @@ CREATE TABLE `" . $table . "`
     /**
      * processOrderBy()
      *
-     * @param $content
+     * @param array $content
      *
      * @return array
      */
-    private function processOrderBy($content)
+    private function processOrderBy(array $content)
     {
         if ($this->orderBy && $content && in_array($this->orderBy[0], array_keys(( array )$content[0]))) {
-            /*
-                * Check if order by was specified
-                * Check if there's actually a result of the query
-                * Makes sure the column  actually exists in the list of columns
-            */
-
-            list($sort_column, $orderBy) = $this->orderBy;
+            list($sort_column, $order_by) = $this->orderBy;
             $sort_keys = [];
             $sorted    = [];
 
             foreach ($content as $index => $value) {
                 $value = ( array )$value;
-                // Save the index and value so we can use them to sort
-                $sort_keys[$index] = $value[$sort_column];
+                                $sort_keys[$index] = $value[$sort_column];
             }
-
-            // Let's sort!
-            if ($orderBy == self::ASC_SORT) {
+            if ($order_by == self::ASC_SORT) {
                 asort($sort_keys);
-            } elseif ($orderBy == self::DESC_SORT) {
+            } elseif ($order_by == self::DESC_SORT) {
                 arsort($sort_keys);
             }
-
-            // We are done with sorting, lets use the sorted array indexes to pull back the original content and return new content
             foreach ($sort_keys as $index => $value) {
                 $sorted[$index] = ( array )$content[$index];
             }
