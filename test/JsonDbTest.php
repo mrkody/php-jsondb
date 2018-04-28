@@ -1,9 +1,9 @@
 <?php
-use joker2620\JsonDb\JsonDb;
+use nazbav\JsonDb\JsonDb;
 
 /**
  * File: JsonDbTest.php;
- * Author: Joker2620;
+ * Author: nazbav;
  * Date: 19.04.2018;
  * Time: 0:32;
  */

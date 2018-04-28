@@ -6,7 +6,7 @@ Include the file `<?php include( 'vendor/autoload.php' );?>`
 #### Initialize
 ```php
 	<?php 
-	$json_db = new \joker2620\JsonDb\JsonDb();
+	$json_db = new \nazbav\JsonDb\JsonDb();
 ```
 
 #### Inserting

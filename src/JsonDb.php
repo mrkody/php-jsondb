@@ -1,11 +1,11 @@
 <?php
 declare(strict_types = 1);
-namespace joker2620\JsonDb;
+namespace nazbav\JsonDb;
 
 /**
  * Class JsonDb
  *
- * @package joker2620\JsonDb
+ * @package nazbav\JsonDb
  */
 class JsonDb
 {

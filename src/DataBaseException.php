@@ -1,18 +1,18 @@
 <?php
 /**
  * File: Exception.php;
- * Author: Joker2620;
+ * Author: nazbav;
  * Date: 19.04.2018;
  * Time: 22:23;
  */
 
-namespace joker2620\JsonDb;
+namespace nazbav\JsonDb;
 
 
 /**
  * Class Exception
  *
- * @package joker2620\JsonDb
+ * @package nazbav\JsonDb
  */
 
 class DataBaseException extends \Exception

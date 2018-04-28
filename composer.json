@@ -1,14 +1,14 @@
 {
-  "name": "joker2620/php-jsondb",
+  "name": "nazbav/php-jsondb",
   "description": "Simple JSON-file-database PHP library. Forked from donjajo/php-jsondb",
   "version": "1.0.0",
   "keywords": [
-    "joker2620",
+    "nazbav",
     "jsondb",
     "json",
     "php"
   ],
-  "homepage": "https://github.com/joker2620/php-jsondb",
+  "homepage": "https://github.com/nazbav/php-jsondb",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -21,7 +21,7 @@
       "email": "kody1994@mail.ru"
     },
     {
-      "name": "joker2620",
+      "name": "nazbav",
       "email": "naz.bav@list.ru"
     }
   ],
@@ -31,7 +31,7 @@
   },
   "autoload": {
     "psr-4": {
-      "joker2620\\JsonDb\\": "src"
+      "nazbav\\JsonDb\\": "src"
     }
   }
 }

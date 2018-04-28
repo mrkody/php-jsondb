@@ -2,13 +2,13 @@
 declare(strict_types = 1);
 /**
  * File: noUnitTest.php;
- * Author: Joker2620;
+ * Author: nazbav;
  * Date: 19.04.2018;
  * Time: 0:46;
  */
 include_once '../vendor/autoload.php';
 
-use joker2620\JsonDb\JsonDb;
+use nazbav\JsonDb\JsonDb;
 
 $json_db = new JsonDb();
 $json_db->from('users.json');
