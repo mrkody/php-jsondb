@@ -1,7 +1,7 @@
 {
   "name": "nazbav/php-jsondb",
   "description": "Simple JSON-file-database PHP library. Forked from donjajo/php-jsondb",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "keywords": [
     "nazbav",
     "jsondb",
