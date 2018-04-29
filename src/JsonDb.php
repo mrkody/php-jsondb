@@ -17,9 +17,20 @@ class JsonDb
     private $select;
     private $merge;
     private $update;
+    private $directory;
     private $delete      = false;
     private $lastIndexes = [];
     private $orderBy     = [];
+
+    /**
+     * JsonDb constructor.
+     *
+     * @param string $directory
+     */
+    public function __construct($directory = __DIR__)
+    {
+        $this->directory = $directory;
+    }
 
     /**
      * select()
@@ -279,7 +290,7 @@ class JsonDb
     function from(
         string $file
     ) {
-        $this->file = $file;
+        $this->file = sprintf('%s/%s.json', $this->directory, str_replace('.json', '', $file)); // Adding .json extension is no longer necessary
 
         $this->where([]);
 

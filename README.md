@@ -6,7 +6,7 @@ Include the file `<?php include( 'vendor/autoload.php' );?>`
 #### Initialize
 ```php
 	<?php 
-	$json_db = new \nazbav\JsonDb\JsonDb();
+	$json_db = new \nazbav\JsonDb\JsonDb(); // Or passing the directory of your json files with no trailing slash, default is the current directory. E.g.  new JsonDb( '/var/www/html/json_files' )
 ```
 
 #### Inserting
